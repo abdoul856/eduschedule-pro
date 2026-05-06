@@ -1,0 +1,448 @@
+/* ============================================
+   EduSchedule Pro — Styles globaux personnalisés
+   ISGE-BF 2025-2026
+   ============================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap');
+
+/* Variables globales */
+:root {
+  --primary:     #1a56db;
+  --primary-dark:#1e429f;
+  --secondary:   #7e3af2;
+  --success:     #057a55;
+  --warning:     #c27803;
+  --danger:      #c81e1e;
+  --info:        #0694a2;
+  --light:       #f9fafb;
+  --dark:        #111928;
+  --gray:        #6b7280;
+  --border:      #e5e7eb;
+  --shadow:      0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+  --shadow-lg:   0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+  --radius:      12px;
+  --radius-sm:   8px;
+  --transition:  all 0.2s ease;
+}
+
+/* Reset et base */
+* { box-sizing: border-box; }
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: #f3f4f6;
+  color: var(--dark);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+}
+
+/* ============================================
+   SIDEBAR
+   ============================================ */
+nav.bg-primary {
+  background: linear-gradient(160deg, #1a56db 0%, #1e429f 50%, #1a3a8f 100%) !important;
+  box-shadow: 4px 0 15px rgba(0,0,0,0.15);
+  border-right: none !important;
+}
+
+nav.bg-primary .fw-bold {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.1rem;
+  letter-spacing: 0.5px;
+}
+
+nav.bg-primary .nav-link {
+  border-radius: 10px !important;
+  margin: 2px 0;
+  transition: var(--transition);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+nav.bg-primary .nav-link:hover {
+  background: rgba(255,255,255,0.15) !important;
+  transform: translateX(4px);
+}
+
+nav.bg-primary .nav-link.fw-bold {
+  background: rgba(255,255,255,0.2) !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+nav.bg-primary .bg-white.bg-opacity-10 {
+  background: rgba(255,255,255,0.12) !important;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+nav.bg-primary .btn-outline-light {
+  border-radius: 10px;
+  font-size: 0.8rem;
+  transition: var(--transition);
+}
+
+nav.bg-primary .btn-outline-light:hover {
+  background: rgba(255,255,255,0.15);
+  transform: translateY(-1px);
+}
+
+/* ============================================
+   CARDS
+   ============================================ */
+.card {
+  border-radius: var(--radius) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: var(--shadow) !important;
+  transition: var(--transition);
+}
+
+.card:hover {
+  box-shadow: var(--shadow-lg) !important;
+  transform: translateY(-2px);
+}
+
+.card-header {
+  border-radius: var(--radius) var(--radius) 0 0 !important;
+  border-bottom: 1px solid var(--border) !important;
+  background: white !important;
+  padding: 1rem 1.25rem !important;
+}
+
+/* ============================================
+   BOUTONS
+   ============================================ */
+.btn {
+  border-radius: var(--radius-sm) !important;
+  font-weight: 500 !important;
+  font-size: 0.875rem !important;
+  transition: var(--transition) !important;
+  letter-spacing: 0.3px;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #1a56db, #1e429f) !important;
+  border: none !important;
+}
+
+.btn-success {
+  background: linear-gradient(135deg, #057a55, #046c4e) !important;
+  border: none !important;
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, #e02424, #c81e1e) !important;
+  border: none !important;
+}
+
+.btn-warning {
+  background: linear-gradient(135deg, #e3a008, #c27803) !important;
+  border: none !important;
+}
+
+/* ============================================
+   FORMULAIRES
+   ============================================ */
+.form-control, .form-select {
+  border-radius: var(--radius-sm) !important;
+  border: 1.5px solid var(--border) !important;
+  font-size: 0.875rem !important;
+  padding: 0.6rem 0.85rem !important;
+  transition: var(--transition) !important;
+  background-color: #fafafa !important;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 3px rgba(26,86,219,0.15) !important;
+  background-color: white !important;
+}
+
+.form-label {
+  font-weight: 600 !important;
+  font-size: 0.8rem !important;
+  color: var(--gray) !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  margin-bottom: 0.4rem !important;
+}
+
+/* ============================================
+   TABLEAUX
+   ============================================ */
+.table {
+  font-size: 0.875rem !important;
+}
+
+.table thead th {
+  font-weight: 600 !important;
+  font-size: 0.75rem !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  padding: 0.85rem 1rem !important;
+  border-bottom: 2px solid var(--border) !important;
+}
+
+.table tbody td {
+  padding: 0.85rem 1rem !important;
+  vertical-align: middle !important;
+  border-bottom: 1px solid #f3f4f6 !important;
+}
+
+.table-hover tbody tr:hover {
+  background-color: #f0f4ff !important;
+  transition: var(--transition);
+}
+
+.table-primary {
+  background: linear-gradient(135deg, #dbeafe, #eff6ff) !important;
+}
+
+.table-primary th {
+  color: #1e429f !important;
+}
+
+/* ============================================
+   BADGES
+   ============================================ */
+.badge {
+  border-radius: 6px !important;
+  font-weight: 500 !important;
+  font-size: 0.75rem !important;
+  padding: 0.35em 0.65em !important;
+}
+
+/* ============================================
+   ALERTES
+   ============================================ */
+.alert {
+  border-radius: var(--radius-sm) !important;
+  border: none !important;
+  font-size: 0.875rem !important;
+  padding: 0.875rem 1.25rem !important;
+}
+
+.alert-info {
+  background: #e0f2fe !important;
+  color: #0369a1 !important;
+}
+
+.alert-warning {
+  background: #fef3c7 !important;
+  color: #92400e !important;
+}
+
+.alert-danger {
+  background: #fee2e2 !important;
+  color: #991b1b !important;
+}
+
+.alert-success {
+  background: #d1fae5 !important;
+  color: #065f46 !important;
+}
+
+/* ============================================
+   MODALS
+   ============================================ */
+.modal-content {
+  border-radius: var(--radius) !important;
+  border: none !important;
+  box-shadow: 0 25px 50px rgba(0,0,0,0.25) !important;
+}
+
+.modal-header {
+  border-bottom: 1px solid var(--border) !important;
+  padding: 1.25rem 1.5rem !important;
+  border-radius: var(--radius) var(--radius) 0 0 !important;
+}
+
+.modal-footer {
+  border-top: 1px solid var(--border) !important;
+  padding: 1rem 1.5rem !important;
+}
+
+/* ============================================
+   KPI CARDS
+   ============================================ */
+.border-start.border-4 {
+  border-radius: var(--radius) !important;
+  overflow: hidden;
+}
+
+.border-start.border-primary { border-left-color: var(--primary) !important; }
+.border-start.border-success  { border-left-color: var(--success) !important; }
+.border-start.border-warning  { border-left-color: var(--warning) !important; }
+.border-start.border-info     { border-left-color: var(--info) !important; }
+.border-start.border-danger   { border-left-color: var(--danger) !important; }
+
+/* ============================================
+   NAVIGATION TABS
+   ============================================ */
+.nav-tabs {
+  border-bottom: 2px solid var(--border) !important;
+}
+
+.nav-tabs .nav-link {
+  border: none !important;
+  border-bottom: 2px solid transparent !important;
+  color: var(--gray) !important;
+  font-weight: 500 !important;
+  font-size: 0.875rem !important;
+  padding: 0.75rem 1rem !important;
+  margin-bottom: -2px !important;
+  transition: var(--transition) !important;
+  border-radius: 0 !important;
+}
+
+.nav-tabs .nav-link:hover {
+  color: var(--primary) !important;
+  border-bottom-color: var(--primary) !important;
+  background: transparent !important;
+  transform: none !important;
+}
+
+.nav-tabs .nav-link.active {
+  color: var(--primary) !important;
+  border-bottom-color: var(--primary) !important;
+  background: transparent !important;
+  font-weight: 600 !important;
+}
+
+/* ============================================
+   PROGRESS BARS
+   ============================================ */
+.progress {
+  border-radius: 50px !important;
+  background: #e5e7eb !important;
+  height: 8px !important;
+}
+
+.progress-bar {
+  border-radius: 50px !important;
+  transition: width 0.6s ease !important;
+}
+
+/* ============================================
+   SPINNERS
+   ============================================ */
+.spinner-border {
+  width: 2.5rem !important;
+  height: 2.5rem !important;
+  border-width: 3px !important;
+}
+
+/* ============================================
+   MAIN CONTENT
+   ============================================ */
+main.bg-light {
+  background: #f3f4f6 !important;
+  min-height: 100vh;
+}
+
+main.bg-light h2 {
+  font-size: 1.5rem !important;
+  color: var(--dark) !important;
+  margin-bottom: 1.5rem !important;
+}
+
+/* ============================================
+   SCROLLBAR
+   ============================================ */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #f1f1f1; }
+::-webkit-scrollbar-thumb { background: #c5c5c5; border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: #a0a0a0; }
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.card { animation: fadeIn 0.3s ease; }
+
+nav { animation: slideInLeft 0.3s ease; }
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 768px) {
+  nav { width: 200px !important; }
+  main { padding: 1rem !important; }
+  .card { margin-bottom: 1rem; }
+}
+
+/* ============================================
+   TABLE RESPONSIVE
+   ============================================ */
+.table-responsive {
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+/* ============================================
+   INPUT GROUPS
+   ============================================ */
+.input-group .form-control {
+  border-right: none !important;
+}
+
+.input-group .btn {
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0 !important;
+}
+
+/* ============================================
+   SIGNATURE PAD
+   ============================================ */
+canvas {
+  border-radius: var(--radius-sm) !important;
+  cursor: crosshair !important;
+}
+
+/* ============================================
+   QR CODE
+   ============================================ */
+img[alt="QR"] {
+  border-radius: var(--radius-sm) !important;
+  transition: var(--transition) !important;
+}
+
+img[alt="QR"]:hover {
+  transform: scale(1.05) !important;
+  box-shadow: var(--shadow-lg) !important;
+}
+
+/* ============================================
+   LOADING
+   ============================================ */
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1a56db, #1e429f);
+  color: white;
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.2rem;
+}
