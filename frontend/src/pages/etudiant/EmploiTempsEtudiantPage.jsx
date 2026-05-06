@@ -1,3 +1,7 @@
+// Auteur : DAOUGA Said Alfred
+// Module : Délégué/Étudiant - Cahier texte, historique, PDF
+// Date : Mai 2026
+
 import { useState, useEffect } from "react";
 
 const JOURS = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"];

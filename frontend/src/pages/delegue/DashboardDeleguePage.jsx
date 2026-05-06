@@ -1,3 +1,8 @@
+// Auteur : DAOUGA Said Alfred
+// Module : Délégué/Étudiant - Cahier texte, historique, PDF
+// Date : Mai 2026
+
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
