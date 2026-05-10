@@ -27,11 +27,13 @@ if ($methode === 'GET') {
 
 // ── POST (créer) ──
 if ($methode === 'POST') {
-    $body  = json_decode(file_get_contents('php://input'), true);
-    $email = trim($body['email']        ?? '');
-    $mdp   = trim($body['mot_de_passe'] ?? '');
-    $role  = trim($body['role']         ?? 'etudiant');
-    $actif = (int)($body['actif']       ?? 1);
+    $body    = json_decode(file_get_contents('php://input'), true);
+    $email   = trim($body['email']        ?? '');
+    $mdp     = trim($body['mot_de_passe'] ?? '');
+    $role    = trim($body['role']         ?? 'etudiant');
+    $actif   = (int)($body['actif']       ?? 1);
+    // ── AJOUT : récupérer id_lien ──
+    $id_lien = !empty($body['id_lien']) ? (int)$body['id_lien'] : null;
 
     if (!$email || !$mdp) {
         http_response_code(400);
@@ -48,36 +50,39 @@ if ($methode === 'POST') {
     }
 
     $hash = password_hash($mdp, PASSWORD_BCRYPT);
+    // ── AJOUT : insérer id_lien ──
     $stmt = $db->prepare("
-        INSERT INTO utilisateurs (email, mot_de_passe_hash, role, actif)
-        VALUES (?, ?, ?, ?)
+        INSERT INTO utilisateurs (email, mot_de_passe_hash, role, actif, id_lien)
+        VALUES (?, ?, ?, ?, ?)
     ");
-    $stmt->execute([$email, $hash, $role, $actif]);
+    $stmt->execute([$email, $hash, $role, $actif, $id_lien]);
     echo json_encode(['message' => 'Utilisateur créé', 'id' => $db->lastInsertId()]);
     exit;
 }
 
 // ── PUT (modifier) ──
 if ($methode === 'PUT' && $id) {
-    $body  = json_decode(file_get_contents('php://input'), true);
-    $email = trim($body['email']        ?? '');
-    $mdp   = trim($body['mot_de_passe'] ?? '');
-    $role  = trim($body['role']         ?? '');
-    $actif = (int)($body['actif']       ?? 1);
+    $body    = json_decode(file_get_contents('php://input'), true);
+    $email   = trim($body['email']        ?? '');
+    $mdp     = trim($body['mot_de_passe'] ?? '');
+    $role    = trim($body['role']         ?? '');
+    $actif   = (int)($body['actif']       ?? 1);
+    // ── AJOUT : récupérer id_lien ──
+    $id_lien = !empty($body['id_lien']) ? (int)$body['id_lien'] : null;
 
     if ($mdp) {
         $hash = password_hash($mdp, PASSWORD_BCRYPT);
         $db->prepare("
             UPDATE utilisateurs
-            SET email=?, mot_de_passe_hash=?, role=?, actif=?
+            SET email=?, mot_de_passe_hash=?, role=?, actif=?, id_lien=?
             WHERE id=?
-        ")->execute([$email, $hash, $role, $actif, $id]);
+        ")->execute([$email, $hash, $role, $actif, $id_lien, $id]);
     } else {
         $db->prepare("
             UPDATE utilisateurs
-            SET email=?, role=?, actif=?
+            SET email=?, role=?, actif=?, id_lien=?
             WHERE id=?
-        ")->execute([$email, $role, $actif, $id]);
+        ")->execute([$email, $role, $actif, $id_lien, $id]);
     }
     echo json_encode(['message' => 'Utilisateur modifié']);
     exit;
