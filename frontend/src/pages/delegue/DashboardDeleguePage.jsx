@@ -1,8 +1,3 @@
-// Auteur : DAOUGA Said Alfred
-// Module : Délégué/Étudiant - Cahier texte, historique, PDF
-// Date : Mai 2026
-
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -59,10 +54,10 @@ export default function DashboardDeleguePage() {
       {/* KPIs */}
       <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:16, marginBottom:"1.5rem" }}>
         {[
-          { icon:"📚", label:"Total séances",  value:stats.seances,  color:"#1a56db", bg:"#dbeafe" },
-          { icon:"✅", label:"Cahiers clôturés",value:stats.clotures, color:"#057a55", bg:"#d1fae5" },
-          { icon:"⏳", label:"En cours",        value:stats.enCours,  color:"#c27803", bg:"#fef3c7" },
-          { icon:"📊", label:"Taux clôture",    value:stats.taux+"%", color:"#7e3af2", bg:"#ede9fe" },
+          { icon:"📚", label:"Total séances",   value:stats.seances,   color:"#1a56db", bg:"#dbeafe" },
+          { icon:"✅", label:"Cahiers clôturés", value:stats.clotures,  color:"#057a55", bg:"#d1fae5" },
+          { icon:"⏳", label:"En cours",         value:stats.enCours,   color:"#c27803", bg:"#fef3c7" },
+          { icon:"📊", label:"Taux clôture",     value:stats.taux+"%",  color:"#7e3af2", bg:"#ede9fe" },
         ].map((k,i)=>(
           <div key={i} style={{
             background:"white", borderRadius:16, padding:"1.25rem",
@@ -80,10 +75,11 @@ export default function DashboardDeleguePage() {
       </div>
 
       {/* Actions rapides */}
-      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:14, marginBottom:"1.5rem" }}>
+      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:14, marginBottom:"1.5rem" }}>
         {[
-          { icon:"📋", label:"Cahier de texte", desc:"Saisir le contenu d'une séance", path:"/delegue/cahier",    color:"#7e3af2" },
-          { icon:"📜", label:"Historique",       desc:"Consulter les séances passées",  path:"/delegue/historique",color:"#1a56db" },
+          { icon:"📋", label:"Cahier de texte",  desc:"Saisir le contenu d'une séance", path:"/delegue/cahier",       color:"#7e3af2" },
+          { icon:"📜", label:"Historique",        desc:"Consulter les séances passées",  path:"/delegue/historique",   color:"#1a56db" },
+          { icon:"📅", label:"Emploi du temps",   desc:"Voir le planning de ma classe",  path:"/delegue/emploi-temps", color:"#057a55" },
         ].map((btn,i)=>(
           <button key={i} onClick={()=>navigate(btn.path)} style={{
             background:"white", borderRadius:16, padding:"1.5rem",

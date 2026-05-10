@@ -54,7 +54,7 @@ export default function VerificationFiches() {
 
   const viser = async (id) => {
     try {
-      const res = await fetch(`${API}/vacations.php?id=${id}&action=viser`, {
+      const res = await fetch(`${API}/vacations.php?id=${id}&action=valider`, {
         method:"POST",
         headers:{ "Content-Type":"application/json", Authorization:`Bearer ${token}` },
         body: JSON.stringify({ commentaire:"Visé par le surveillant général" })
@@ -68,7 +68,6 @@ export default function VerificationFiches() {
 
   const exporterControlePDF = (v) => {
     const doc = new jsPDF();
-
     doc.setFontSize(18); doc.setTextColor(13,110,253);
     doc.text("EduSchedule Pro", 105, 18, { align:"center" });
     doc.setFontSize(14); doc.setTextColor(0);
@@ -78,14 +77,13 @@ export default function VerificationFiches() {
     doc.setDrawColor(13,110,253); doc.line(20,40,190,40);
 
     doc.setFontSize(10); doc.setTextColor(0);
-    doc.text(`Enseignant  : ${v.enseignant_nom}`,       20, 50);
-    doc.text(`Matricule   : ${v.matricule||"-"}`,        20, 57);
-    doc.text(`Période     : ${MOIS[v.mois]} ${v.annee}`,20, 64);
+    doc.text(`Enseignant  : ${v.enseignant_nom}`,        20, 50);
+    doc.text(`Matricule   : ${v.matricule||"-"}`,         20, 57);
+    doc.text(`Période     : ${MOIS[v.mois]} ${v.annee}`, 20, 64);
     doc.text(`Statut      : ${STATUT_CONFIG[v.statut]?.label||v.statut}`, 20, 71);
-    doc.text(`Alertes     : ${v.alertes?.length||0}`,   120, 50);
-    doc.text(`Montant net : ${formatMontant(v.montant_net)}`, 120, 57);
+    doc.text(`Alertes     : ${v.alertes?.length||0}`,    120, 50);
+    doc.text(`Montant net : ${formatMontant(v.montant_net)}`,  120, 57);
     doc.text(`Montant brut: ${formatMontant(v.montant_brut)}`, 120, 64);
-
     doc.setDrawColor(200); doc.line(20,76,190,76);
 
     const lignes = v.lignes||[];
@@ -112,11 +110,9 @@ export default function VerificationFiches() {
     });
 
     let fy = doc.lastAutoTable.finalY + 10;
-
     if (v.alertes?.length>0) {
       doc.setFontSize(11); doc.setTextColor(146,64,14);
-      doc.text("⚠️ Alertes détectées :", 20, fy);
-      fy += 7;
+      doc.text("⚠️ Alertes détectées :", 20, fy); fy += 7;
       v.alertes.forEach(a => {
         doc.setFontSize(9); doc.setTextColor(120,53,15);
         doc.text(`• ${a}`, 25, fy); fy+=6;
@@ -129,11 +125,9 @@ export default function VerificationFiches() {
     doc.rect(20, fy+3, 80, 22);
     doc.text(`Date : ${new Date().toLocaleDateString("fr-FR")}`, 120, fy);
     doc.rect(115, fy+3, 75, 22);
-
     doc.setFontSize(8); doc.setTextColor(150);
     doc.text("EduSchedule Pro - ISGE-BF - Document généré automatiquement",
       105, doc.internal.pageSize.getHeight()-8, { align:"center" });
-
     doc.save(`verification-${v.enseignant_nom?.replace(/ /g,"-")}-${MOIS[v.mois]}-${v.annee}.pdf`);
   };
 
@@ -141,9 +135,9 @@ export default function VerificationFiches() {
     ? vacations.filter(v => v.alertes?.length > 0)
     : vacations;
 
-  const nbAlertes  = vacations.reduce((s,v)=>s+(v.alertes?.length||0),0);
-  const nbAViser   = vacations.filter(v=>v.statut==="generee").length;
-  const nbOK       = vacations.filter(v=>!v.alertes?.length).length;
+  const nbAlertes = vacations.reduce((s,v)=>s+(v.alertes?.length||0),0);
+  const nbAViser  = vacations.filter(v=>v.statut==="generee").length;
+  const nbOK      = vacations.filter(v=>!v.alertes?.length).length;
 
   return (
     <div style={{ fontFamily:"'Inter',sans-serif" }}>
@@ -204,7 +198,6 @@ export default function VerificationFiches() {
           }}>🔍 Chercher</button>
         </div>
 
-        {/* Filtre alerte rapide */}
         {vacations.length > 0 && (
           <div style={{ marginTop:12, display:"flex", gap:8 }}>
             <button onClick={()=>setFiltreAlerte(false)} style={{
@@ -227,10 +220,10 @@ export default function VerificationFiches() {
       {vacations.length > 0 && (
         <div style={{ display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:14,marginBottom:"1.5rem" }}>
           {[
-            { icon:"📋", label:"Total fiches",  value:vacations.length, color:"#1a56db", bg:"#dbeafe" },
-            { icon:"✅", label:"Sans alerte",    value:nbOK,             color:"#057a55", bg:"#d1fae5" },
-            { icon:"⚠️", label:"Alertes totales",value:nbAlertes,        color:"#e02424", bg:"#fee2e2" },
-            { icon:"⏳", label:"À viser",         value:nbAViser,         color:"#c27803", bg:"#fef3c7" },
+            { icon:"📋", label:"Total fiches",   value:vacations.length, color:"#1a56db", bg:"#dbeafe" },
+            { icon:"✅", label:"Sans alerte",     value:nbOK,             color:"#057a55", bg:"#d1fae5" },
+            { icon:"⚠️", label:"Alertes totales", value:nbAlertes,        color:"#e02424", bg:"#fee2e2" },
+            { icon:"⏳", label:"À viser",          value:nbAViser,         color:"#c27803", bg:"#fef3c7" },
           ].map((k,i)=>(
             <div key={i} style={{
               background:"white",borderRadius:14,padding:"1rem",
@@ -260,9 +253,9 @@ export default function VerificationFiches() {
           {/* Liste */}
           <div>
             {listeAffichee.map(v => {
-              const cfg     = STATUT_CONFIG[v.statut]||{label:v.statut,bg:"#f3f4f6",color:"#374151",icon:"📋"};
-              const hasAl   = v.alertes?.length>0;
-              const isOpen  = detail?.id===v.id;
+              const cfg    = STATUT_CONFIG[v.statut]||{label:v.statut,bg:"#f3f4f6",color:"#374151",icon:"📋"};
+              const hasAl  = v.alertes?.length>0;
+              const isOpen = detail?.id===v.id;
               return (
                 <div key={v.id} style={{
                   background:"white",borderRadius:16,marginBottom:12,
@@ -322,7 +315,6 @@ export default function VerificationFiches() {
                     </div>
                   </div>
 
-                  {/* Alertes inline */}
                   {hasAl && (
                     <div style={{ padding:"0.5rem 1.25rem",background:"#fffbeb",borderTop:"1px solid #fcd34d" }}>
                       {v.alertes.map((a,i)=>(
@@ -359,7 +351,6 @@ export default function VerificationFiches() {
                 }}>✕</button>
               </div>
 
-              {/* Montants */}
               <div style={{ display:"grid",gridTemplateColumns:"1fr 1fr",gap:1,background:"#e5e7eb" }}>
                 {[
                   { label:"Montant brut",value:formatMontant(detail.montant_brut),color:"#374151" },
@@ -372,19 +363,15 @@ export default function VerificationFiches() {
                 ))}
               </div>
 
-              {/* Séances */}
               <div style={{ padding:"0.75rem" }}>
                 <div style={{ fontSize:"0.75rem",fontWeight:600,color:"#6b7280",textTransform:"uppercase",marginBottom:8 }}>
                   Détail des séances
                 </div>
                 {(detail.lignes||[]).map((l,i)=>(
                   <div key={i} style={{
-                    background: !l.pointage_id || l.statut_cahier!=="cloture"
-                      ? "#fffbeb" : "#f9fafb",
-                    borderRadius:10, padding:"0.625rem",
-                    marginBottom:6,
-                    border: !l.pointage_id || l.statut_cahier!=="cloture"
-                      ? "1px solid #fcd34d" : "1px solid #e5e7eb"
+                    background: !l.pointage_id || l.statut_cahier!=="cloture" ? "#fffbeb" : "#f9fafb",
+                    borderRadius:10, padding:"0.625rem", marginBottom:6,
+                    border: !l.pointage_id || l.statut_cahier!=="cloture" ? "1px solid #fcd34d" : "1px solid #e5e7eb"
                   }}>
                     <div style={{ display:"flex",justifyContent:"space-between",alignItems:"flex-start" }}>
                       <div>
@@ -413,7 +400,6 @@ export default function VerificationFiches() {
                 ))}
               </div>
 
-              {/* Actions */}
               <div style={{ padding:"0.75rem",borderTop:"1px solid #e5e7eb",display:"flex",gap:8 }}>
                 <button onClick={()=>exporterControlePDF(detail)} style={{
                   flex:1,padding:"8px",borderRadius:8,

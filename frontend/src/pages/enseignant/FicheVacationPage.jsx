@@ -10,16 +10,17 @@ export default function FicheVacationPage() {
   const [detail, setDetail]       = useState(null);
 
   const token = localStorage.getItem("edu_token");
+  const user  = JSON.parse(localStorage.getItem("edu_user") || "{}");
   const API   = "http://localhost/eduschedule-pro/backend/api";
 
   const MOIS = ["","Janvier","Fevrier","Mars","Avril","Mai","Juin",
                 "Juillet","Aout","Septembre","Octobre","Novembre","Decembre"];
 
   const STATUT_CONFIG = {
-    generee:           { label:"Générée",          bg:"#f3f4f6", color:"#374151", icon:"📋", desc:"En attente du visa surveillant" },
-    visee_surveillant: { label:"Visée",             bg:"#fef3c7", color:"#92400e", icon:"👁️", desc:"En attente d'approbation comptable" },
-    approuvee:         { label:"Approuvée",         bg:"#d1fae5", color:"#065f46", icon:"✅", desc:"En attente de paiement" },
-    payee:             { label:"Payée",             bg:"#dbeafe", color:"#1e429f", icon:"💰", desc:"Paiement effectué" },
+    generee:           { label:"Générée",  bg:"#f3f4f6", color:"#374151", icon:"📋", desc:"En attente du visa surveillant" },
+    visee_surveillant: { label:"Visée",    bg:"#fef3c7", color:"#92400e", icon:"👁️", desc:"En attente d'approbation comptable" },
+    approuvee:         { label:"Approuvée",bg:"#d1fae5", color:"#065f46", icon:"✅", desc:"En attente de paiement" },
+    payee:             { label:"Payée",    bg:"#dbeafe", color:"#1e429f", icon:"💰", desc:"Paiement effectué" },
   };
 
   const formatMontant = (val) =>
@@ -27,11 +28,21 @@ export default function FicheVacationPage() {
 
   const formatNombre = (val) => parseFloat(val||0).toFixed(2);
 
+  // ✅ Charger automatiquement au démarrage
+  useEffect(() => { charger(); }, []);
+
   const charger = async () => {
     setLoading(true);
     try {
-      const res  = await fetch(`${API}/vacations.php?mois=${mois}&annee=${annee}`, {
-        headers: { Authorization:`Bearer ${token}` }
+      const t = localStorage.getItem("edu_token");
+      const u = JSON.parse(localStorage.getItem("edu_user") || "{}");
+
+      // ✅ CORRECTION : filtrer par id_enseignant = user.id_lien
+      const params = new URLSearchParams({ mois, annee });
+      if (u.id_lien) params.append("id_enseignant", u.id_lien);
+
+      const res  = await fetch(`${API}/vacations.php?${params}`, {
+        headers: { Authorization:`Bearer ${t}` }
       });
       const data = await res.json();
       setVacations(Array.isArray(data) ? data : []);
@@ -42,7 +53,6 @@ export default function FicheVacationPage() {
 
   const exporterPDF = (v) => {
     const doc = new jsPDF();
-
     doc.setFontSize(18); doc.setTextColor(13,110,253);
     doc.text("EduSchedule Pro", 105, 18, { align:"center" });
     doc.setFontSize(14); doc.setTextColor(0);
@@ -52,12 +62,11 @@ export default function FicheVacationPage() {
     doc.setDrawColor(13,110,253); doc.line(20,40,190,40);
 
     doc.setFontSize(10); doc.setTextColor(0);
-    doc.text(`Enseignant  : ${v.enseignant_nom}`,          20, 50);
-    doc.text(`Matricule   : ${v.matricule||"-"}`,           20, 57);
-    doc.text(`Période     : ${MOIS[v.mois]} ${v.annee}`,   20, 64);
+    doc.text(`Enseignant  : ${v.enseignant_nom}`,        20, 50);
+    doc.text(`Matricule   : ${v.matricule||"-"}`,         20, 57);
+    doc.text(`Période     : ${MOIS[v.mois]} ${v.annee}`, 20, 64);
     doc.text(`Statut      : ${STATUT_CONFIG[v.statut]?.label||v.statut}`, 20, 71);
-    doc.text(`Généré le   : ${new Date().toLocaleDateString("fr-FR")}`,   120, 50);
-
+    doc.text(`Généré le   : ${new Date().toLocaleDateString("fr-FR")}`,  120, 50);
     doc.line(20,76,190,76);
 
     const lignes = v.lignes||[];
@@ -87,7 +96,7 @@ export default function FicheVacationPage() {
     doc.setFontSize(11); doc.setTextColor(0);
     doc.text("Montant brut :", 120, fy);
     doc.text(formatMontant(v.montant_brut), 190, fy, { align:"right" });
-    doc.text("Retenues :",     120, fy+8);
+    doc.text("Retenues :", 120, fy+8);
     doc.text(formatMontant(v.retenues||0), 190, fy+8, { align:"right" });
     doc.setFontSize(13); doc.setTextColor(13,110,253); doc.setFont(undefined,"bold");
     doc.text("Montant net :", 120, fy+18);
@@ -106,11 +115,9 @@ export default function FicheVacationPage() {
     doc.setFontSize(8); doc.setTextColor(150);
     doc.text("EduSchedule Pro - ISGE-BF - Document généré automatiquement",
       105, doc.internal.pageSize.getHeight()-8, { align:"center" });
-
     doc.save(`fiche-vacation-${MOIS[v.mois]}-${v.annee}.pdf`);
   };
 
-  // Totaux
   const totalNet  = vacations.reduce((s,v)=>s+parseFloat(v.montant_net||0),0);
   const totalPaye = vacations.filter(v=>v.statut==="payee").reduce((s,v)=>s+parseFloat(v.montant_net||0),0);
 
@@ -153,7 +160,7 @@ export default function FicheVacationPage() {
       {vacations.length > 0 && (
         <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:14, marginBottom:"1.5rem" }}>
           {[
-            { icon:"📋", label:"Fiches ce mois", value:vacations.length,    color:"#1a56db", bg:"#dbeafe" },
+            { icon:"📋", label:"Fiches ce mois",   value:vacations.length, color:"#1a56db", bg:"#dbeafe" },
             { icon:"💰", label:"Montant net total",
               value:totalNet.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g," ")+" F",
               color:"#c27803", bg:"#fef3c7" },
@@ -213,11 +220,9 @@ export default function FicheVacationPage() {
                         {v.lignes?.length||0} séance(s)
                       </p>
                       <div style={{ marginTop:8, display:"flex", gap:8, alignItems:"center" }}>
-                        <span style={{
-                          background:cfg.bg, color:cfg.color,
-                          borderRadius:20, padding:"3px 12px",
-                          fontSize:"0.75rem", fontWeight:600
-                        }}>{cfg.icon} {cfg.label}</span>
+                        <span style={{ background:cfg.bg, color:cfg.color, borderRadius:20, padding:"3px 12px", fontSize:"0.75rem", fontWeight:600 }}>
+                          {cfg.icon} {cfg.label}
+                        </span>
                         <span style={{ fontSize:"0.75rem", color:"#6b7280" }}>{cfg.desc}</span>
                       </div>
                     </div>
@@ -303,9 +308,9 @@ export default function FicheVacationPage() {
               {/* Récap montants */}
               <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:1, background:"#e5e7eb" }}>
                 {[
-                  { label:"Brut",     value:formatMontant(detail.montant_brut),  color:"#374151" },
-                  { label:"Retenues", value:formatMontant(detail.retenues||0),   color:"#991b1b" },
-                  { label:"Net",      value:formatMontant(detail.montant_net),   color:"#1a56db" },
+                  { label:"Brut",     value:formatMontant(detail.montant_brut), color:"#374151" },
+                  { label:"Retenues", value:formatMontant(detail.retenues||0),  color:"#991b1b" },
+                  { label:"Net",      value:formatMontant(detail.montant_net),  color:"#1a56db" },
                 ].map((item,i)=>(
                   <div key={i} style={{ background:"#f9fafb", padding:"0.75rem", textAlign:"center" }}>
                     <div style={{ fontSize:"0.85rem", fontWeight:700, color:item.color }}>{item.value}</div>

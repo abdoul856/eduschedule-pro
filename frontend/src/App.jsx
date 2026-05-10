@@ -24,13 +24,15 @@ import FicheVacationPage from "./pages/enseignant/FicheVacationPage";
 // Délégué
 import DashboardDeleguePage from "./pages/delegue/DashboardDeleguePage";
 import CahierTextePage from "./pages/delegue/CahierTextePage";
-import HistoriquePage    from "./pages/delegue/HistoriquePage";
+import HistoriquePage from "./pages/delegue/HistoriquePage";
+import EmploiTempsDeleaguePage from "./pages/delegue/EmploiTempsDeleaguePage";
 
 // Surveillant
 import DashboardSurveillantPage from "./pages/surveillant/DashboardSurveillantPage";
 import VerificationFiches  from "./pages/surveillant/VerificationFiches";
 import ValidationControle  from "./pages/surveillant/ValidationControle";
 import RapportSurveillant  from "./pages/surveillant/RapportSurveillant";
+
 // Comptable
 import DashboardComptablePage from "./pages/comptable/DashboardComptablePage";
 import ValidationComptable from "./pages/comptable/ValidationComptable";
@@ -87,43 +89,44 @@ export default function App() {
             <Route path="matieres"     element={<MatieresPage />} />
             <Route path="salles"       element={<SallesPage />} />
             <Route path="utilisateurs" element={<UtilisateursPage />} />
-            <Route path="parametres"   element={<ParametresPage />}   />
+            <Route path="parametres"   element={<ParametresPage />} />
             <Route path="statistiques" element={<StatistiquesPage />} />
           </Route>
 
-          {/* Enseignant */}
-<Route path="/enseignant" element={<PrivateRoute roles={["enseignant"]}><DashboardLayout /></PrivateRoute>}>
-  <Route path="dashboard" element={<DashboardEnseignantPage />} />
-  <Route path="pointage"  element={<PointagePage />}            />
-  <Route path="signature" element={<SignatureCahierPage />}      />
-  <Route path="vacations" element={<FicheVacationPage />}       />
-</Route>
+          {/* ── Enseignant ── */}
+          <Route path="/enseignant" element={<PrivateRoute roles={["enseignant"]}><DashboardLayout /></PrivateRoute>}>
+            <Route path="dashboard" element={<DashboardEnseignantPage />} />
+            <Route path="pointage"  element={<PointagePage />} />
+            <Route path="signature" element={<SignatureCahierPage />} />
+            <Route path="vacations" element={<FicheVacationPage />} />
+          </Route>
 
-{/* Délégué */}
-<Route path="/delegue" element={<PrivateRoute roles={["delegue"]}><DashboardLayout /></PrivateRoute>}>
-  <Route path="dashboard"  element={<DashboardDeleguePage />} />
-  <Route path="cahier"     element={<CahierTextePage />}      />
-  <Route path="historique" element={<HistoriquePage />}       />
-</Route>
+          {/* ── Délégué ── */}
+          <Route path="/delegue" element={<PrivateRoute roles={["delegue"]}><DashboardLayout /></PrivateRoute>}>
+            <Route path="dashboard"    element={<DashboardDeleguePage />} />
+            <Route path="cahier"       element={<CahierTextePage />} />
+            <Route path="historique"   element={<HistoriquePage />} />
+            <Route path="emploi-temps" element={<EmploiTempsDeleaguePage />} />
+          </Route>
 
           {/* ── Surveillant ── */}
           <Route path="/surveillant" element={<PrivateRoute roles={["surveillant"]}><DashboardLayout /></PrivateRoute>}>
-  <Route path="dashboard"    element={<DashboardSurveillantPage />} />
-  <Route path="verification" element={<VerificationFiches />}       />
-  <Route path="validation"   element={<ValidationControle />}       />
-  <Route path="rapports"     element={<RapportSurveillant />}       />
-</Route>
+            <Route path="dashboard"    element={<DashboardSurveillantPage />} />
+            <Route path="verification" element={<VerificationFiches />} />
+            <Route path="validation"   element={<ValidationControle />} />
+            <Route path="rapports"     element={<RapportSurveillant />} />
+          </Route>
 
           {/* ── Comptable ── */}
           <Route path="/comptable" element={<PrivateRoute roles={["comptable"]}><DashboardLayout /></PrivateRoute>}>
-            <Route path="dashboard"      element={<DashboardComptablePage />} />
-            <Route path="validation"     element={<ValidationComptable />} />
-            <Route path="bons"           element={<BonPaiement />} />
-            <Route path="vacations"      element={<ListeVacations />} />
+            <Route path="dashboard"       element={<DashboardComptablePage />} />
+            <Route path="validation"      element={<ValidationComptable />} />
+            <Route path="bons"            element={<BonPaiement />} />
+            <Route path="vacations"       element={<ListeVacations />} />
             <Route path="rapport-mensuel" element={<RapportMensuel />} />
             <Route path="rapport-annuel"  element={<RapportAnnuel />} />
-            <Route path="historique"     element={<HistoriquePaiements />} />
-            <Route path="archives"       element={<Archivage />} />
+            <Route path="historique"      element={<HistoriquePaiements />} />
+            <Route path="archives"        element={<Archivage />} />
           </Route>
 
           {/* ── Étudiant ── */}

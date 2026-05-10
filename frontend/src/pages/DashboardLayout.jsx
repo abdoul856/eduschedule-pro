@@ -3,45 +3,50 @@ import { useAuth } from "../context/AuthContext";
 
 const MENUS = {
   admin: [
-  { label: "Tableau de bord", icon: "📊", path: "/admin/dashboard"     },
-  { label: "Emploi du temps", icon: "📅", path: "/admin/emploi-temps"  },
-  { label: "QR-Codes",        icon: "📱", path: "/admin/qrcode"        },
-  { label: "Enseignants",     icon: "👨‍🏫", path: "/admin/enseignants"   },
-  { label: "Classes",         icon: "🏫", path: "/admin/classes"       },
-  { label: "Matières",        icon: "📚", path: "/admin/matieres"      },
-  { label: "Salles",          icon: "🏛️", path: "/admin/salles"        },
-  { label: "Utilisateurs",    icon: "👥", path: "/admin/utilisateurs"  },
-  { label: "Statistiques",    icon: "📈", path: "/admin/statistiques"  },
-  { label: "Paramètres",      icon: "⚙️", path: "/admin/parametres"    },
-],
-  
-  enseignant: [
-  { label: "Mon dashboard",   icon: "📊", path: "/enseignant/dashboard" },
-  { label: "Pointage QR",     icon: "📱", path: "/enseignant/pointage"  },
-  { label: "Signer cahiers",  icon: "✍️", path: "/enseignant/signature" },
-  { label: "Mes vacations",   icon: "💼", path: "/enseignant/vacations" },
-],
-delegue: [
-  { label: "Mon dashboard",   icon: "📊", path: "/delegue/dashboard"   },
-  { label: "Cahier de texte", icon: "📋", path: "/delegue/cahier"      },
-  { label: "Historique",      icon: "📜", path: "/delegue/historique"  },
-],
-  surveillant: [
-  { label: "Tableau de bord",      icon: "📊", path: "/surveillant/dashboard"   },
-  { label: "Vérification fiches",  icon: "🔎", path: "/surveillant/verification" },
-  { label: "Validation contrôle",  icon: "✅", path: "/surveillant/validation"  },
-  { label: "Rapports",             icon: "📊", path: "/surveillant/rapports"    },
-],
-  comptable: [
-    { label: "Tableau de bord",      icon: "📊", path: "/comptable/dashboard" },
-    { label: "Validation",           icon: "✅", path: "/comptable/validation" },
-    { label: "Bons de paiement",     icon: "🧾", path: "/comptable/bons" },
-    { label: "Liste vacations",      icon: "📋", path: "/comptable/vacations" },
-    { label: "Rapport mensuel",      icon: "📊", path: "/comptable/rapport-mensuel" },
-    { label: "Rapport annuel",       icon: "📈", path: "/comptable/rapport-annuel" },
-    { label: "Historique paiements", icon: "💳", path: "/comptable/historique" },
-    { label: "Archives",             icon: "🗄️", path: "/comptable/archives" },
+    { label: "Tableau de bord", icon: "📊", path: "/admin/dashboard"    },
+    { label: "Emploi du temps", icon: "📅", path: "/admin/emploi-temps" },
+    { label: "QR-Codes",        icon: "📱", path: "/admin/qrcode"       },
+    { label: "Enseignants",     icon: "👨‍🏫", path: "/admin/enseignants"  },
+    { label: "Classes",         icon: "🏫", path: "/admin/classes"      },
+    { label: "Matières",        icon: "📚", path: "/admin/matieres"     },
+    { label: "Salles",          icon: "🏛️", path: "/admin/salles"       },
+    { label: "Utilisateurs",    icon: "👥", path: "/admin/utilisateurs" },
+    { label: "Statistiques",    icon: "📈", path: "/admin/statistiques" },
+    { label: "Paramètres",      icon: "⚙️", path: "/admin/parametres"   },
   ],
+
+  enseignant: [
+    { label: "Mon dashboard",  icon: "📊", path: "/enseignant/dashboard" },
+    { label: "Pointage QR",    icon: "📱", path: "/enseignant/pointage"  },
+    { label: "Signer cahiers", icon: "✍️", path: "/enseignant/signature" },
+    { label: "Mes vacations",  icon: "💼", path: "/enseignant/vacations" },
+  ],
+
+  delegue: [
+    { label: "Mon dashboard",   icon: "📊", path: "/delegue/dashboard"   },
+    { label: "Cahier de texte", icon: "📋", path: "/delegue/cahier"      },
+    { label: "Historique",      icon: "📜", path: "/delegue/historique"  },
+    { label: "Emploi du temps", icon: "📅", path: "/delegue/emploi-temps"}, // ← AJOUT
+  ],
+
+  surveillant: [
+    { label: "Tableau de bord",     icon: "📊", path: "/surveillant/dashboard"    },
+    { label: "Vérification fiches", icon: "🔎", path: "/surveillant/verification" },
+    { label: "Validation contrôle", icon: "✅", path: "/surveillant/validation"   },
+    { label: "Rapports",            icon: "📊", path: "/surveillant/rapports"     },
+  ],
+
+  comptable: [
+    { label: "Tableau de bord",      icon: "📊", path: "/comptable/dashboard"      },
+    { label: "Validation",           icon: "✅", path: "/comptable/validation"      },
+    { label: "Bons de paiement",     icon: "🧾", path: "/comptable/bons"           },
+    { label: "Liste vacations",      icon: "📋", path: "/comptable/vacations"      },
+    { label: "Rapport mensuel",      icon: "📊", path: "/comptable/rapport-mensuel"},
+    { label: "Rapport annuel",       icon: "📈", path: "/comptable/rapport-annuel" },
+    { label: "Historique paiements", icon: "💳", path: "/comptable/historique"     },
+    { label: "Archives",             icon: "🗄️", path: "/comptable/archives"       },
+  ],
+
   etudiant: [
     { label: "Emploi du temps", icon: "📅", path: "/etudiant/emploi-temps" },
   ],

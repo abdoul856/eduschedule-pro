@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 
 export default function UtilisateursPage() {
   const [utilisateurs, setUtilisateurs] = useState([]);
+  const [classes, setClasses]           = useState([]); // ← AJOUT
   const [loading, setLoading]           = useState(false);
   const [message, setMessage]           = useState("");
   const [showModal, setShowModal]       = useState(false);
@@ -21,10 +22,10 @@ export default function UtilisateursPage() {
     { key: "etudiant",    label: "Étudiant",        color: "#e02424", bg: "#fee2e2", icon: "👤" },
   ];
 
-  const FORM_INIT = { email: "", mot_de_passe: "", role: "enseignant", actif: 1 };
+  const FORM_INIT = { email: "", mot_de_passe: "", role: "enseignant", actif: 1, id_lien: "" };
   const [form, setForm] = useState(FORM_INIT);
 
-  useEffect(() => { charger(); }, []);
+  useEffect(() => { charger(); chargerClasses(); }, []);
 
   const charger = async () => {
     setLoading(true);
@@ -40,10 +41,23 @@ export default function UtilisateursPage() {
     setLoading(false);
   };
 
+  // ── Charger la liste des classes ──────────────────────────────
+  const chargerClasses = async () => {
+    try {
+      const res  = await fetch(`${API}/classes.php`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+      setClasses(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("Erreur chargement classes", err);
+    }
+  };
+
   const ouvrir = (user = null) => {
     setEditUser(user);
     setForm(user
-      ? { email: user.email, mot_de_passe: "", role: user.role, actif: user.actif }
+      ? { email: user.email, mot_de_passe: "", role: user.role, actif: user.actif, id_lien: user.id_lien || "" }
       : FORM_INIT
     );
     setShowModal(true);
@@ -54,6 +68,10 @@ export default function UtilisateursPage() {
   const sauvegarder = async () => {
     if (!form.email || (!editUser && !form.mot_de_passe)) {
       setMessage("❌ Email et mot de passe obligatoires"); return;
+    }
+    // Vérifier que la classe est choisie pour étudiant/délégué
+    if ((form.role === "etudiant" || form.role === "delegue") && !form.id_lien) {
+      setMessage("❌ Veuillez sélectionner une classe"); return;
     }
     try {
       const url     = editUser ? `${API}/utilisateurs.php?id=${editUser.id}` : `${API}/utilisateurs.php`;
@@ -75,7 +93,7 @@ export default function UtilisateursPage() {
       const res = await fetch(`${API}/utilisateurs.php?id=${user.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ email: user.email, mot_de_passe: "", role: user.role, actif: user.actif ? 0 : 1 })
+        body: JSON.stringify({ email: user.email, mot_de_passe: "", role: user.role, actif: user.actif ? 0 : 1, id_lien: user.id_lien || "" })
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.erreur);
@@ -110,6 +128,9 @@ export default function UtilisateursPage() {
   const statsParRole = ROLES.map(r => ({
     ...r, count: utilisateurs.filter(u => u.role === r.key).length
   }));
+
+  // Rôles qui nécessitent une classe
+  const roleNecessiteClasse = form.role === "etudiant" || form.role === "delegue";
 
   return (
     <div style={{ fontFamily: "'Inter',sans-serif" }}>
@@ -176,16 +197,17 @@ export default function UtilisateursPage() {
           <table style={{ width:"100%", borderCollapse:"collapse" }}>
             <thead>
               <tr style={{ background:"linear-gradient(135deg,#dbeafe,#eff6ff)" }}>
-                {["Email","Rôle","Statut","Dernière connexion","Actions"].map(h => (
+                {["Email","Rôle","Classe","Statut","Dernière connexion","Actions"].map(h => (
                   <th key={h} style={{ padding:"1rem", textAlign:"left", fontSize:"0.75rem", fontWeight:600, color:"#1e429f", textTransform:"uppercase" }}>{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {liste.length === 0 ? (
-                <tr><td colSpan={5} style={{ padding:"2rem", textAlign:"center", color:"#6b7280" }}>Aucun utilisateur trouvé.</td></tr>
+                <tr><td colSpan={6} style={{ padding:"2rem", textAlign:"center", color:"#6b7280" }}>Aucun utilisateur trouvé.</td></tr>
               ) : liste.map((u, i) => {
                 const cfg = getRoleConfig(u.role);
+                const classeLibelle = classes.find(c => c.id === u.id_lien)?.libelle || "—";
                 return (
                   <tr key={u.id} style={{ borderBottom:"1px solid #f3f4f6", background: i%2===0 ? "white" : "#fafafa" }}>
                     <td style={{ padding:"0.875rem 1rem" }}>
@@ -205,6 +227,14 @@ export default function UtilisateursPage() {
                       <span style={{ background:cfg.bg, color:cfg.color, borderRadius:20, padding:"3px 12px", fontSize:"0.75rem", fontWeight:600 }}>
                         {cfg.icon} {cfg.label}
                       </span>
+                    </td>
+                    {/* ── Colonne Classe ── */}
+                    <td style={{ padding:"0.875rem 1rem", fontSize:"0.85rem", color:"#374151" }}>
+                      {(u.role === "etudiant" || u.role === "delegue") ? (
+                        <span style={{ background:"#ede9fe", color:"#7e3af2", borderRadius:20, padding:"3px 12px", fontSize:"0.75rem", fontWeight:600 }}>
+                          🏫 {classeLibelle}
+                        </span>
+                      ) : "—"}
                     </td>
                     <td style={{ padding:"0.875rem 1rem" }}>
                       <span style={{
@@ -241,7 +271,7 @@ export default function UtilisateursPage() {
             </tbody>
             <tfoot>
               <tr style={{ background:"#f9fafb" }}>
-                <td colSpan={5} style={{ padding:"0.75rem 1rem", fontSize:"0.8rem", color:"#6b7280" }}>
+                <td colSpan={6} style={{ padding:"0.75rem 1rem", fontSize:"0.8rem", color:"#6b7280" }}>
                   {liste.length} utilisateur(s) affiché(s) sur {utilisateurs.length} au total
                 </td>
               </tr>
@@ -282,7 +312,7 @@ export default function UtilisateursPage() {
             <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:14, marginBottom:14 }}>
               <div>
                 <label style={{ display:"block", fontSize:"0.75rem", fontWeight:600, color:"#6b7280", textTransform:"uppercase", marginBottom:6 }}>Rôle *</label>
-                <select value={form.role} onChange={e => setForm({...form, role: e.target.value})}
+                <select value={form.role} onChange={e => setForm({...form, role: e.target.value, id_lien: ""})}
                   style={{ width:"100%", padding:"9px 12px", border:"1.5px solid #e5e7eb", borderRadius:8, fontSize:"0.875rem" }}>
                   {ROLES.map(r => <option key={r.key} value={r.key}>{r.icon} {r.label}</option>)}
                 </select>
@@ -296,6 +326,26 @@ export default function UtilisateursPage() {
                 </select>
               </div>
             </div>
+
+            {/* ── Champ Classe (uniquement étudiant et délégué) ── */}
+            {roleNecessiteClasse && (
+              <div style={{ marginBottom:14 }}>
+                <label style={{ display:"block", fontSize:"0.75rem", fontWeight:600, color:"#7e3af2", textTransform:"uppercase", marginBottom:6 }}>
+                  🏫 Classe *
+                </label>
+                <select
+                  value={form.id_lien}
+                  onChange={e => setForm({...form, id_lien: parseInt(e.target.value)})}
+                  style={{ width:"100%", padding:"9px 12px", border:"1.5px solid #7e3af2", borderRadius:8, fontSize:"0.875rem", background:"#faf5ff" }}>
+                  <option value="">-- Sélectionner une classe --</option>
+                  {classes.map(c => (
+                    <option key={c.id} value={c.id}>
+                      {c.libelle} {c.niveau ? `— ${c.niveau}` : ""}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
 
             <div style={{ display:"flex", gap:12, marginTop:"1.5rem" }}>
               <button onClick={fermer} style={{

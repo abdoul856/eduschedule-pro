@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
 
 export default function ValidationControle() {
-  const [vacations, setVacations]     = useState([]);
-  const [enseignants, setEnseignants] = useState([]);
-  const [ensId, setEnsId]             = useState("");
-  const [mois, setMois]               = useState(new Date().getMonth()+1);
-  const [annee, setAnnee]             = useState(new Date().getFullYear());
-  const [loading, setLoading]         = useState(false);
-  const [message, setMessage]         = useState("");
+  const [vacations, setVacations]       = useState([]);
+  const [enseignants, setEnseignants]   = useState([]);
+  const [ensId, setEnsId]               = useState("");
+  const [mois, setMois]                 = useState(new Date().getMonth()+1);
+  const [annee, setAnnee]               = useState(new Date().getFullYear());
+  const [loading, setLoading]           = useState(false);
+  const [message, setMessage]           = useState("");
   const [commentaires, setCommentaires] = useState({});
 
   const token = localStorage.getItem("edu_token");
@@ -19,64 +19,71 @@ export default function ValidationControle() {
   const formatMontant = (val) =>
     parseInt(val||0).toString().replace(/\B(?=(\d{3})+(?!\d))/g," ")+" FCFA";
 
-  useEffect(()=>{
-    fetch(`${API}/enseignants.php`,{headers:{Authorization:`Bearer ${token}`}})
-      .then(r=>r.json()).then(setEnseignants).catch(()=>{});
-  },[]);
+  // ✅ CORRECTION 1 : sécuriser le chargement des enseignants
+  useEffect(() => {
+    const t = localStorage.getItem("edu_token");
+    fetch(`${API}/enseignants.php`, {
+      headers: { Authorization: `Bearer ${t}` }
+    })
+      .then(r => r.json())
+      .then(data => setEnseignants(Array.isArray(data) ? data : []))
+      .catch(() => setEnseignants([]));
+  }, []);
 
   const charger = async () => {
     setLoading(true);
     try {
       const params = new URLSearchParams({ mois, annee });
       if (ensId) params.append("id_enseignant", ensId);
-      const res  = await fetch(`${API}/vacations.php?${params}`,{
-        headers:{Authorization:`Bearer ${token}`}
+      const res  = await fetch(`${API}/vacations.php?${params}`, {
+        headers: { Authorization: `Bearer ${token}` }
       });
       const data = await res.json();
-      // Seulement les fiches générées (à viser)
       const liste = Array.isArray(data)
-        ? data.filter(v => v.statut==="generee" || v.statut==="visee_surveillant")
+        ? data.filter(v => v.statut === "generee" || v.statut === "visee_surveillant")
         : [];
       setVacations(liste);
     } catch { setVacations([]); }
     setLoading(false);
   };
 
+  // ✅ CORRECTION 2 : action=valider (pas viser)
   const viser = async (id) => {
     try {
       const commentaire = commentaires[id] || "Visé par le surveillant général";
-      const res = await fetch(`${API}/vacations.php?id=${id}&action=viser`,{
-        method:"POST",
-        headers:{"Content-Type":"application/json",Authorization:`Bearer ${token}`},
+      const res = await fetch(`${API}/vacations.php?id=${id}&action=valider`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ commentaire })
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.erreur);
-      setMessage("✅ "+data.message);
+      setMessage("✅ " + data.message);
       charger();
-    } catch(err){ setMessage("❌ "+err.message); }
+    } catch(err) { setMessage("❌ " + err.message); }
   };
 
+  // ✅ CORRECTION 3 : action=valider dans viserTout aussi
   const viserTout = async () => {
-    const aViser = vacations.filter(v=>v.statut==="generee");
+    const aViser = vacations.filter(v => v.statut === "generee");
     if (!aViser.length) { setMessage("❌ Aucune fiche à viser."); return; }
-    let ok=0, err=0;
+    let ok = 0, err = 0;
     for (const v of aViser) {
       try {
-        const res = await fetch(`${API}/vacations.php?id=${v.id}&action=viser`,{
-          method:"POST",
-          headers:{"Content-Type":"application/json",Authorization:`Bearer ${token}`},
-          body:JSON.stringify({ commentaire:"Visa groupé — surveillant général" })
+        const res = await fetch(`${API}/vacations.php?id=${v.id}&action=valider`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ commentaire: "Visa groupé — surveillant général" })
         });
         if (res.ok) ok++; else err++;
       } catch { err++; }
     }
-    setMessage(`✅ ${ok} fiche(s) visée(s)${err>0?` — ❌ ${err} erreur(s)`:""}`);
+    setMessage(`✅ ${ok} fiche(s) visée(s)${err > 0 ? ` — ❌ ${err} erreur(s)` : ""}`);
     charger();
   };
 
-  const aViser  = vacations.filter(v=>v.statut==="generee");
-  const visitees = vacations.filter(v=>v.statut==="visee_surveillant");
+  const aViser   = vacations.filter(v => v.statut === "generee");
+  const visitees = vacations.filter(v => v.statut === "visee_surveillant");
 
   return (
     <div style={{ fontFamily:"'Inter',sans-serif" }}>
@@ -88,7 +95,7 @@ export default function ValidationControle() {
             Visa des fiches de vacation — contrôle et approbation
           </p>
         </div>
-        {aViser.length>0 && (
+        {aViser.length > 0 && (
           <button onClick={viserTout} style={{
             background:"linear-gradient(135deg,#c27803,#92400e)",
             color:"white",border:"none",borderRadius:10,
@@ -110,7 +117,7 @@ export default function ValidationControle() {
       )}
 
       {/* Alerte */}
-      {aViser.length>0 && (
+      {aViser.length > 0 && (
         <div style={{
           background:"#fef3c7",border:"1px solid #fcd34d",
           borderRadius:12,padding:"1rem 1.25rem",marginBottom:"1.5rem",
@@ -190,14 +197,14 @@ export default function ValidationControle() {
       {/* Liste */}
       {loading ? (
         <div style={{ textAlign:"center",padding:"3rem" }}><div className="spinner-border text-warning"/></div>
-      ) : vacations.length===0 ? (
+      ) : vacations.length === 0 ? (
         <div style={{ background:"#fffbeb",borderRadius:14,padding:"2rem",textAlign:"center",color:"#92400e",border:"1px solid #fcd34d" }}>
           ℹ️ Aucune fiche à valider. Cherchez par mois ou enseignant.
         </div>
       ) : (
         <>
           {/* À viser */}
-          {aViser.length>0 && (
+          {aViser.length > 0 && (
             <div style={{ marginBottom:"1.5rem" }}>
               <h5 style={{ fontFamily:"'Poppins',sans-serif",color:"#92400e",marginBottom:12 }}>
                 ⏳ En attente de visa ({aViser.length})
@@ -219,7 +226,7 @@ export default function ValidationControle() {
                       <p style={{ margin:"4px 0 0",color:"#6b7280",fontSize:"0.875rem" }}>
                         📅 {MOIS[v.mois]} {v.annee}
                         &nbsp;•&nbsp; {v.lignes?.length||0} séance(s)
-                        {v.alertes?.length>0 && (
+                        {v.alertes?.length > 0 && (
                           <span style={{ marginLeft:8,background:"#fee2e2",color:"#991b1b",borderRadius:20,padding:"2px 8px",fontSize:"0.7rem",fontWeight:600 }}>
                             ⚠️ {v.alertes.length} alerte(s)
                           </span>
@@ -235,7 +242,7 @@ export default function ValidationControle() {
                   </div>
 
                   {/* Alertes */}
-                  {v.alertes?.length>0 && (
+                  {v.alertes?.length > 0 && (
                     <div style={{ padding:"0.5rem 1.5rem",background:"#fff7ed",borderBottom:"1px solid #fed7aa" }}>
                       {v.alertes.map((a,i)=>(
                         <div key={i} style={{ fontSize:"0.8rem",color:"#c2410c" }}>• {a}</div>
@@ -265,7 +272,7 @@ export default function ValidationControle() {
           )}
 
           {/* Déjà visées */}
-          {visitees.length>0 && (
+          {visitees.length > 0 && (
             <div>
               <h5 style={{ fontFamily:"'Poppins',sans-serif",color:"#057a55",marginBottom:12 }}>
                 ✅ Déjà visées ({visitees.length})

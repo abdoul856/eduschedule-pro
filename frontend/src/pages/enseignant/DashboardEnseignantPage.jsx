@@ -2,10 +2,9 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function DashboardEnseignantPage() {
-  const [stats, setStats]       = useState({ seances: 0, pointages: 0, cahiers: 0, montant: 0 });
+  const [stats, setStats]         = useState({ seances: 0, pointages: 0, cahiers: 0, montant: 0 });
   const [vacations, setVacations] = useState([]);
-  const [prochaines, setProchaines] = useState([]);
-  const [loading, setLoading]   = useState(true);
+  const [loading, setLoading]     = useState(true);
   const navigate = useNavigate();
 
   const token = localStorage.getItem("edu_token");
@@ -26,17 +25,17 @@ export default function DashboardEnseignantPage() {
       const mois  = new Date().getMonth() + 1;
       const annee = new Date().getFullYear();
 
-      // Vacations
-      const resV = await fetch(`${API}/vacations.php?mois=${mois}&annee=${annee}`, {
-        headers: { Authorization:`Bearer ${token}` }
+      // ✅ CORRECTION : filtrer par id_enseignant = user.id_lien
+      const params = new URLSearchParams({ mois, annee });
+      if (user.id_lien) params.append("id_enseignant", user.id_lien);
+
+      const resV  = await fetch(`${API}/vacations.php?${params}`, {
+        headers: { Authorization: `Bearer ${token}` }
       });
       const dataV = await resV.json();
       const liste = Array.isArray(dataV) ? dataV : [];
       setVacations(liste);
 
-      // Stats
-      const totalHeures  = liste.reduce((s,v) =>
-        s + (v.lignes||[]).reduce((sh,l) => sh + parseFloat(l.duree_heures||0), 0), 0);
       const totalPointes = liste.reduce((s,v) =>
         s + (v.lignes||[]).filter(l => l.pointage_id).length, 0);
       const totalCahiers = liste.reduce((s,v) =>
@@ -44,31 +43,24 @@ export default function DashboardEnseignantPage() {
       const totalMontant = liste.reduce((s,v) => s + parseFloat(v.montant_net||0), 0);
 
       setStats({
-        seances:  liste.reduce((s,v) => s + (v.lignes||[]).length, 0),
+        seances:   liste.reduce((s,v) => s + (v.lignes||[]).length, 0),
         pointages: totalPointes,
-        cahiers:  totalCahiers,
-        montant:  totalMontant,
+        cahiers:   totalCahiers,
+        montant:   totalMontant,
       });
-
-      // Emploi du temps (prochaines séances)
-      const resE = await fetch(`${API}/emploi_temps.php`, {
-        headers: { Authorization:`Bearer ${token}` }
-      });
-      const dataE = await resE.json();
-      setProchaines(Array.isArray(dataE) ? dataE.slice(0,5) : []);
 
     } catch { }
     setLoading(false);
   };
 
-  const moisCourant = MOIS[new Date().getMonth()+1];
+  const moisCourant   = MOIS[new Date().getMonth()+1];
   const anneeCourante = new Date().getFullYear();
 
   const STATUT_CONFIG = {
-    generee:           { label:"Générée",          bg:"#f3f4f6", color:"#374151" },
-    visee_surveillant: { label:"Visée",             bg:"#fef3c7", color:"#92400e" },
-    approuvee:         { label:"Approuvée",         bg:"#d1fae5", color:"#065f46" },
-    payee:             { label:"Payée",             bg:"#dbeafe", color:"#1e429f" },
+    generee:           { label:"Générée",  bg:"#f3f4f6", color:"#374151" },
+    visee_surveillant: { label:"Visée",    bg:"#fef3c7", color:"#92400e" },
+    approuvee:         { label:"Approuvée",bg:"#d1fae5", color:"#065f46" },
+    payee:             { label:"Payée",    bg:"#dbeafe", color:"#1e429f" },
   };
 
   return (
@@ -112,16 +104,15 @@ export default function DashboardEnseignantPage() {
       {/* Actions rapides */}
       <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:14, marginBottom:"1.5rem" }}>
         {[
-          { icon:"📱", label:"Scanner QR", desc:"Pointer ma présence", path:"/enseignant/pointage", color:"#1a56db" },
-          { icon:"✍️", label:"Signer cahier", desc:"Clôturer une séance", path:"/enseignant/signature", color:"#057a55" },
+          { icon:"📱", label:"Scanner QR",    desc:"Pointer ma présence",  path:"/enseignant/pointage",  color:"#1a56db" },
+          { icon:"✍️", label:"Signer cahier", desc:"Clôturer une séance",  path:"/enseignant/signature", color:"#057a55" },
           { icon:"💼", label:"Mes vacations", desc:"Consulter mes fiches", path:"/enseignant/vacations", color:"#c27803" },
         ].map((btn,i) => (
           <button key={i} onClick={() => navigate(btn.path)} style={{
             background:"white", borderRadius:16, padding:"1.5rem",
             boxShadow:"0 4px 6px -1px rgba(0,0,0,0.1)",
             border:`2px solid ${btn.color}22`,
-            cursor:"pointer", textAlign:"left",
-            transition:"all 0.2s"
+            cursor:"pointer", textAlign:"left", transition:"all 0.2s"
           }}
           onMouseOver={e => e.currentTarget.style.borderColor = btn.color}
           onMouseOut={e  => e.currentTarget.style.borderColor = `${btn.color}22`}>
@@ -164,7 +155,7 @@ export default function DashboardEnseignantPage() {
           })}
         </div>
 
-        {/* Alertes */}
+        {/* Alertes — uniquement ses propres alertes */}
         <div style={{ background:"white", borderRadius:16, overflow:"hidden", boxShadow:"0 4px 6px -1px rgba(0,0,0,0.1)" }}>
           <div style={{ padding:"1rem 1.5rem", borderBottom:"1px solid #e5e7eb", background:"#f9fafb" }}>
             <h5 style={{ margin:0, fontFamily:"'Poppins',sans-serif" }}>⚠️ Alertes & Actions requises</h5>

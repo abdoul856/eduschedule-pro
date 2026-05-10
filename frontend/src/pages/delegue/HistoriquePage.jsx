@@ -1,8 +1,3 @@
-// Auteur : DAOUGA Said Alfred
-// Module : Délégué/Étudiant - Cahier texte, historique, PDF
-// Date : Mai 2026
-
-
 import { useState, useEffect } from "react";
 
 export default function HistoriquePage() {
